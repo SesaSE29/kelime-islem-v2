@@ -510,7 +510,14 @@ function updateSettings() {
 
 function startGame() { if (isHost) socket.emit('start_game'); }
 function hostStartTimer() { if (isHost) socket.emit('start_timer'); }
-function hostNextRound() { if (isHost) socket.emit('next_round'); }
+function hostNextRound() {
+  if (!isHost) return;
+  // UI'yi hemen güncelle
+  $('next-controls-card').style.display = 'none';
+  $('next-wait-card').style.display = 'none';
+  $('results-list').innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">⟳ Sonraki tur yükleniyor...</div>';
+  socket.emit('next_round');
+}
 function hostRestart() { if (isHost) socket.emit('restart_lobby'); }
 function hostForceEnd() { if (isHost) socket.emit('force_end_round'); }
 function hostShowResults() { if (isHost) socket.emit('show_results'); }
@@ -544,6 +551,10 @@ function renderByState() {
     return;
   }
   if (roomState.state === 'ready' || roomState.state === 'playing' || roomState.state === 'answering') {
+    // Results ekranından geçişte temizlik
+    $('results-list').innerHTML = '';
+    $('next-controls-card').style.display = 'none';
+    $('next-wait-card').style.display = 'none';
     show('screen-game');
     renderGameRound();
     return;
