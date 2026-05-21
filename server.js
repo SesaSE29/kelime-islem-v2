@@ -394,7 +394,9 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms[code];
     if (!room || room.host !== socket.id) return;
+    if (room.state !== 'results') return; // sadece results state'inden geçilebilir
     room.currentRound++;
+  
     if (room.currentRound >= room.settings.rounds) {
       room.state = 'finished';
       const ranked = [...room.players].sort((a,b) => b.score - a.score);
